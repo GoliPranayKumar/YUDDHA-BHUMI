@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Yuddha Bhumi</title>
+    <link rel="stylesheet" href="./style.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Orbitron:wght@500;700;900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="header">
+            <h1 id="app-title" class="thunder-text">Yuddha Bhumi</h1>
+            <div class="controls">
+                <select id="language-select">
+                    <option value="javascript">JavaScript</option>
+                    <option value="python">Python</option>
+                    <option value="cpp">C++</option>
+                    <option value="java">Java</option>
+                </select>
+                <button id="run-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                        fill="currentColor">
+                        <path d="M8 5v14l11-7z" />
+                    </svg>
+                    Run Code
+                </button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="editor-container">
+                <div id="editor"></div>
+            </div>
+            <div class="output-container">
+                <div class="output-header">
+                    <span>Output</span>
+                    <button id="clear-btn" class="icon-btn" title="Clear Output">✕</button>
+                </div>
+                <pre id="output"></pre>
+            </div>
+        </main>
+    </div>
+    <div class="watermark">Build By @golipranaykumar</div>
+    <script type="module" src="./main.js"></script>
+</body>
+
+</html>
