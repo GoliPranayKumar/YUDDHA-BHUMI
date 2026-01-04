@@ -6,6 +6,7 @@ A fast, lightweight online code editor built with [Vite](https://vitejs.dev/) an
 
 - **Multi-language Support**: JavaScript, Python, C++, Java.
 - **Code Execution**: Runs code seamlessly using the [Piston API](https://piston.readthedocs.io/).
+  > **Note**: This is a secure environment that doesn't accept runtime input. Please use fixed values in your code.
 - **Modern UI**: Dark mode, glassmorphism design, and responsive layout.
 
 ## Getting Started
