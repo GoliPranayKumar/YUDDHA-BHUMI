@@ -105,6 +105,20 @@ body {
     animation: fadeIn 0.8s ease-out;
     flex: 1;
     overflow: hidden;
+    transition: padding-left 0.3s ease;
+    /* Smooth transition for the push */
+}
+
+/* When sidebar is collapsed, push content slightly so toggle button doesn't cover line numbers */
+/* When sidebar is collapsed, push main content to right using margin to avoid button overlap */
+/* When sidebar is collapsed, push main content to right using margin to avoid button overlap */
+/* NOT NEEDED ANYMORE - Flexbox will handle it with width transition */
+/* When sidebar is collapsed, push main content to right using margin to avoid button overlap */
+.app-wrapper.sidebar-collapsed .app-container {
+    padding-left: 0 !important;
+    margin-left: 25px !important;
+    /* Force shift 25px (button is ~20px with hover) */
+    transition: margin-left 0.3s ease;
 }
 
 .app-wrapper {
@@ -126,6 +140,18 @@ body {
     z-index: 100;
     transition: transform 0.3s ease;
 }
+
+/* Revert to absolute hidden */
+.sidebar.collapsed {
+    transform: translateX(-100%);
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    /* Take out of flow */
+    height: 100%;
+}
+
+/* Remove explicit hiding of children since parent is hidden/moved */
 
 .sidebar-header {
     display: flex;
@@ -953,4 +979,334 @@ button[disabled] {
     box-shadow: 0 0 15px rgba(255, 215, 0, 0.05);
     transform: translateY(-1px);
     color: var(--text-primary);
+}
+
+/* Toast Notifications */
+.toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 9999;
+}
+
+.toast {
+    background: var(--surface-color);
+    border: 1px solid var(--surface-border);
+    color: var(--text-primary);
+    padding: 16px 20px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    min-width: 300px;
+    font-family: var(--font-ui);
+    animation: toastSlideIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    backdrop-filter: blur(10px);
+}
+
+.toast.toast-success {
+    border-left: 4px solid #4cc9f0;
+}
+
+.toast.toast-error {
+    border-left: 4px solid #ff8080;
+}
+
+.toast.toast-info {
+    border-left: 4px solid #646cff;
+}
+
+@keyframes toastSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes toastSlideOut {
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+/* Rename button specific */
+.icon-btn-mini {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s, background 0.2s;
+}
+
+.saved-item:hover .icon-btn-mini {
+    opacity: 1;
+}
+
+.icon-btn-mini:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Sidebar Toggle & Collapse Styles */
+/* Legacy absolute position collapsed style removed */
+
+/* Sidebar Toggle Styles */
+@keyframes pulse-sidebar-toggle {
+    0% {
+        filter: drop-shadow(0 0 0 rgba(100, 108, 255, 0.4));
+    }
+
+    70% {
+        filter: drop-shadow(0 0 5px rgba(100, 108, 255, 0));
+    }
+
+    100% {
+        filter: drop-shadow(0 0 0 rgba(100, 108, 255, 0));
+    }
+}
+
+.sidebar-toggle {
+    position: fixed;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2000;
+
+    /* Taller and Thinner 'Door' Shape */
+    /* Left side full height, Right side much shorter (perspective illusion) */
+    clip-path: polygon(0 0, 100% 10%, 100% 90%, 0 100%);
+
+    color: var(--text-secondary);
+    cursor: pointer;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    /* Dimensions: Chunky Tab */
+    /* Width = Half of Height (40px) */
+    width: 20px !important;
+    height: 40px;
+    padding: 0 !important;
+
+    /* Glass Effect */
+    background: rgba(255, 255, 255, 0.05);
+    /* Very subtle fill */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    /* Glass border */
+    border-left: none;
+    /* Attach to edge */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+    /* Perspective Door Shape */
+    perspective: 800px;
+    transform-style: preserve-3d;
+    clip-path: polygon(0 0, 100% 10%, 100% 90%, 0 100%);
+
+    color: var(--text-secondary);
+    cursor: pointer;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.sidebar-toggle.visible {
+    display: flex;
+    filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
+    animation: pulse-sidebar-toggle 2s infinite;
+}
+
+.sidebar-toggle:hover {
+    width: 28px !important;
+    /* Expand to 28px */
+    background: rgba(100, 108, 255, 0.25);
+    border-color: rgba(100, 108, 255, 0.4);
+
+    /* Open the door */
+    clip-path: polygon(0 0, 100% 0%, 100% 100%, 0 100%);
+
+    transform: translateY(-50%) rotateY(-20deg);
+    box-shadow: 0 0 15px rgba(100, 108, 255, 0.2);
+}
+
+.sidebar-toggle svg {
+    width: 10px;
+    height: 10px;
+    opacity: 0.7;
+    transition: all 0.2s;
+    display: block;
+    margin-left: 2px;
+    /* Optically center it */
+}
+
+.sidebar-toggle:hover svg {
+    opacity: 1;
+    transform: scale(1.1);
+    color: white;
+}
+
+
+
+
+
+
+
+/* Light Mode Support for Sidebar Toggle */
+[data-theme="light"] .sidebar-toggle {
+    background: rgba(0, 0, 0, 0.08);
+    border-color: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .sidebar-toggle:hover {
+    background: rgba(100, 108, 255, 0.2);
+    border-color: rgba(100, 108, 255, 0.4);
+}
+
+.sidebar-toggle.visible {
+    display: flex;
+    animation: pulse-sidebar-toggle 2s infinite;
+}
+
+.sidebar-toggle.visible:hover {
+    animation: none;
+}
+
+.sidebar-toggle-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: var(--primary-gradient);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: bold;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-close {
+    display: block;
+}
+
+.sidebar-search {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.sidebar-search input {
+    width: 100%;
+    padding: 0.65rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--surface-border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+.sidebar-search input:focus {
+    outline: none;
+    border-color: #646cff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-search input::placeholder {
+    color: var(--text-secondary);
+}
+
+[data-theme="light"] .sidebar-search input {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .sidebar-search input:focus {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+/* Mobile sidebar improvements */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 280px;
+        z-index: 200;
+        box-shadow: var(--shadow-lg);
+        transition: transform 0.3s ease;
+    }
+
+    .sidebar.collapsed {
+        transform: translateX(-100%);
+    }
+
+    /* Allow visibility logic to control display */
+    .sidebar-toggle {
+        /* larger touch target */
+        height: 60px;
+    }
+}
+
+/* Light Mode Support for Sidebar Toggle */
+[data-theme="light"] .sidebar-toggle {
+    background: rgba(0, 0, 0, 0.08);
+    /* Darker for visibility on white */
+    border-color: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .sidebar-toggle:hover {
+    background: rgba(100, 108, 255, 0.2);
+    border-color: rgba(100, 108, 255, 0.4);
+}
+
+[data-theme="light"] .sidebar-toggle svg {
+    color: var(--text-secondary);
+}
+
+/* Profile / Modal Light Mode Fixes */
+.secret-code-container {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+[data-theme="light"] .modal,
+[data-theme="light"] .auth-form-container,
+[data-theme="light"] .modal-content {
+    background: var(--surface-color) !important;
+    border-color: var(--surface-border);
+    color: var(--text-primary);
+}
+
+[data-theme="light"] .secret-code-container {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .modal-overlay {
+    background: rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(4px);
 }
