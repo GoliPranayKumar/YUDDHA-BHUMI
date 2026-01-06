@@ -11,49 +11,101 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Orbitron:wght@500;700;900&display=swap"
         rel="stylesheet">
-  <script type="module" crossorigin src="/YUDDHA-BHUMI/assets/index-Ccwfclmb.js"></script>
-  <link rel="stylesheet" crossorigin href="/YUDDHA-BHUMI/assets/index-BqJgPH9y.css">
+  <script type="module" crossorigin src="/YUDDHA-BHUMI/assets/index-Do59vwtr.js"></script>
+  <link rel="stylesheet" crossorigin href="/YUDDHA-BHUMI/assets/index-CwgYiuS1.css">
 </head>
 
 <body>
-    <div class="app-container">
-        <header class="header">
-            <h1 id="app-title" class="thunder-text">Yuddha Bhumi</h1>
-            <div class="controls">
-                <select id="language-select">
-                    <option value="javascript">JavaScript</option>
-                    <option value="python">Python</option>
-                    <option value="cpp">C++</option>
-                    <option value="java">Java</option>
-                </select>
-                <button id="run-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                        fill="currentColor">
-                        <path d="M8 5v14l11-7z" />
+    <div class="app-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3>SAVED CODE</h3>
+                <button id="new-code-btn" class="icon-btn" title="New Code">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
                     </svg>
-                    Run Code
                 </button>
             </div>
-        </header>
+            <ul id="saved-list" class="saved-codes-list">
+                <li class="empty-state">Connect Supabase to see codes...</li>
+            </ul>
+        </aside>
 
-        <div class="note-banner">
-            <span>Note: This is a secure environment that doesn't accept runtime input. Please use fixed values in your
-                code.</span>
-        </div>
-
-        <main class="main-content">
-            <div class="editor-container">
-                <div id="editor"></div>
-            </div>
-            <div class="output-container">
-                <div class="output-header">
-                    <span>Output</span>
-                    <button id="clear-btn" class="icon-btn" title="Clear Output">✕</button>
+        <div class="app-container">
+            <header class="header">
+                <h1 id="app-title" class="thunder-text">Yuddha Bhumi</h1>
+                <div class="controls">
+                    <button id="save-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                            <polyline points="7 3 7 8 15 8"></polyline>
+                        </svg>
+                        Save
+                    </button>
+                    <select id="language-select">
+                        <option value="javascript">JavaScript</option>
+                        <option value="python">Python</option>
+                        <option value="cpp">C++</option>
+                        <option value="java">Java</option>
+                    </select>
+                    <button id="run-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                            fill="currentColor">
+                            <path d="M8 5v14l11-7z" />
+                        </svg>
+                        Run Code
+                    </button>
                 </div>
-                <pre id="output"></pre>
+            </header>
+
+            <div class="note-banner">
+                <span>Note: This is a secure environment. Runtime input is supported via the Input panel.</span>
             </div>
-        </main>
+
+            <main class="main-content">
+                <div class="editor-container">
+                    <div id="editor"></div>
+                </div>
+                <div class="terminal-container">
+                    <div class="terminal-tabs">
+                        <button class="tab-btn active" data-tab="output">Output</button>
+                        <button class="tab-btn" data-tab="input">Input (stdin)</button>
+                        <button id="clear-btn" class="icon-btn" title="Clear Console"
+                            style="margin-left: auto;">✕</button>
+                    </div>
+                    <div class="terminal-body">
+                        <div id="output-panel" class="tab-pane active">
+                            <pre id="output" class="terminal-content" placeholder="Run code to see output..."></pre>
+                        </div>
+                        <div id="input-panel" class="tab-pane">
+                            <textarea id="input-area" class="terminal-content"
+                                placeholder="Enter input here for your program..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
     </div>
+
+    <!-- Save Modal -->
+    <div id="save-modal" class="modal-overlay">
+        <div class="modal">
+            <h2>Save Snippet</h2>
+            <div class="form-group">
+                <label for="code-title">Title</label>
+                <input type="text" id="code-title" placeholder="e.g. Binary Search Implementation">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" id="cancel-save-btn">Cancel</button>
+                <button id="confirm-save-btn">Save Code</button>
+            </div>
+        </div>
+    </div>
+
     <div class="watermark">Build By @golipranaykumar</div>
 </body>
 
