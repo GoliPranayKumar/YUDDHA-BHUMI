@@ -9,6 +9,9 @@ import { java } from "@codemirror/lang-java"
 import { oneDark } from "@codemirror/theme-one-dark"
 import { createClient } from "@supabase/supabase-js"
 
+// Theme Extension wrapper to allowing toggling
+const themeCompartment = new Compartment();
+
 // ==========================================
 // SUPABASE CONFIGURATION
 // ==========================================
@@ -29,6 +32,30 @@ const outputElement = document.getElementById('output');
 const inputElement = document.getElementById('input-area');
 const clearBtn = document.getElementById('clear-btn');
 const savedList = document.getElementById('saved-list');
+// newCodeBtn is declared later in original file, removing it here to keep the one near usage or move it up. 
+// Moving all top-level elements up is better practice.
+const newCodeBtn = document.getElementById('new-code-btn');
+const themeToggleBtn = document.getElementById('theme-toggle');
+const moonIcon = document.getElementById('moon-icon');
+const sunIcon = document.getElementById('sun-icon');
+
+// Auth UI Elements
+const loginBtn = document.getElementById('login-btn');
+const userProfile = document.getElementById('user-profile');
+const userAvatar = document.getElementById('user-avatar');
+const logoutBtn = document.getElementById('logout-btn');
+
+const authModal = document.getElementById('auth-modal');
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
+const cancelAuthBtn = document.getElementById('cancel-auth-btn');
+const confirmAuthBtn = document.getElementById('confirm-auth-btn');
+const authSwitchLink = document.getElementById('auth-switch-link');
+const authTitle = document.getElementById('auth-title');
+const authSwitchText = document.getElementById('auth-switch-text');
+
+let isSignUpMode = false;
+let user = null;
 
 // Modal Elements
 const saveModal = document.getElementById('save-modal');
@@ -110,7 +137,7 @@ let view = new EditorView({
         extensions: [
             basicSetup,
             keymap.of(defaultKeymap),
-            oneDark,
+            themeCompartment.of(oneDark), // Default to Dark
             langCompartment.of(javascript()),
             EditorView.updateListener.of((update) => {
                 if (update.docChanged && currentCodeId) {
@@ -123,16 +150,165 @@ let view = new EditorView({
 });
 
 // ==========================================
+// THEME LOGIC
+// ==========================================
+function setTheme(isLight) {
+    if (isLight) {
+        document.documentElement.setAttribute('data-theme', 'light');
+        moonIcon.style.display = 'none';
+        sunIcon.style.display = 'block';
+        // Remove OneDark (reconfigure to empty array = default light theme)
+        view.dispatch({
+            effects: themeCompartment.reconfigure([])
+        });
+        localStorage.setItem('theme', 'light');
+    } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        moonIcon.style.display = 'block';
+        sunIcon.style.display = 'none';
+        view.dispatch({
+            effects: themeCompartment.reconfigure(oneDark)
+        });
+        localStorage.setItem('theme', 'dark');
+    }
+}
+
+themeToggleBtn.addEventListener('click', () => {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    setTheme(!isLight);
+});
+
+// Init Theme
+if (localStorage.getItem('theme') === 'light') {
+    setTheme(true);
+}
+
+
+// ==========================================
+// AUTH LOGIC
+// ==========================================
+
+async function initAuth() {
+    const { data } = await supabase.auth.getSession();
+    user = data.session?.user;
+    updateAuthUI();
+
+    supabase.auth.onAuthStateChange((event, session) => {
+        user = session?.user;
+        updateAuthUI();
+        loadSavedCodes(); // Refresh codes on auth change
+        if (event === 'SIGNED_IN') closeModal();
+    });
+}
+
+function updateAuthUI() {
+    if (user) {
+        loginBtn.style.display = 'none';
+        userProfile.style.display = 'flex';
+        userAvatar.innerText = user.email.charAt(0).toUpperCase();
+        userAvatar.title = user.email;
+        // Enable Save/Load/Delete for user
+    } else {
+        loginBtn.style.display = 'block';
+        userProfile.style.display = 'none';
+        // Guest mode
+    }
+}
+
+loginBtn.addEventListener('click', () => {
+    isSignUpMode = false;
+    updateAuthModal();
+    authModal.classList.add('active');
+});
+
+logoutBtn.addEventListener('click', async () => {
+    await supabase.auth.signOut();
+});
+
+cancelAuthBtn.addEventListener('click', () => {
+    authModal.classList.remove('active');
+    emailInput.value = '';
+    passwordInput.value = '';
+});
+
+confirmAuthBtn.addEventListener('click', async () => {
+    const email = emailInput.value;
+    const password = passwordInput.value;
+
+    if (!email || !password) {
+        alert("Please enter email and password");
+        return;
+    }
+
+    const startText = confirmAuthBtn.innerText;
+    confirmAuthBtn.innerText = "Processing...";
+    confirmAuthBtn.disabled = true;
+
+    let error;
+
+    if (isSignUpMode) {
+        const res = await supabase.auth.signUp({ email, password });
+        error = res.error;
+        if (!error && !res.data.session) {
+            alert("Sign up successful! Please check your email to confirm your account.");
+            authModal.classList.remove('active');
+        }
+    } else {
+        const res = await supabase.auth.signInWithPassword({ email, password });
+        error = res.error;
+    }
+
+    confirmAuthBtn.innerText = startText;
+    confirmAuthBtn.disabled = false;
+
+    if (error) {
+        alert(error.message);
+    } else {
+        authModal.classList.remove('active'); // Close on success (listener handles UI update)
+    }
+});
+
+authSwitchLink.addEventListener('click', () => {
+    isSignUpMode = !isSignUpMode;
+    updateAuthModal();
+});
+
+function updateAuthModal() {
+    if (isSignUpMode) {
+        authTitle.innerText = "Sign Up";
+        confirmAuthBtn.innerText = "Create Account";
+        authSwitchText.innerText = "Already have an account? ";
+        authSwitchLink.innerText = "Log In";
+    } else {
+        authTitle.innerText = "Log In";
+        confirmAuthBtn.innerText = "Log In";
+        authSwitchText.innerText = "Don't have an account? ";
+        authSwitchLink.innerText = "Sign Up";
+    }
+}
+
+
+// ==========================================
 // SUPABASE FUNCTIONS
 // ==========================================
 
 async function loadSavedCodes() {
     savedList.innerHTML = '<li class="empty-state">Loading...</li>';
 
+    // Only load if logged in? Or allow public?
+    // Requirement says "Personal code storage".
+    // If we have RLS enabled and we are not logged in, this will return empty or error.
+
+    if (!user) {
+        savedList.innerHTML = '<li class="empty-state">Log in to see your codes.</li>';
+        return;
+    }
+
     // Fetch list of codes
     const { data, error } = await supabase
         .from('codes')
         .select('id, title, language, created_at')
+        .eq('user_id', user.id) // Filter by logged-in user
         .order('created_at', { ascending: false });
 
     if (error) {
@@ -203,6 +379,12 @@ async function deleteCode(id) {
 }
 
 async function saveCode(titleText) {
+    if (!user) {
+        alert("Please log in to save codes.");
+        authModal.classList.add('active'); // Prompt login
+        return;
+    }
+
     const code = view.state.doc.toString();
     const language = languageSelect.value;
     const input = inputElement.value;
@@ -214,8 +396,13 @@ async function saveCode(titleText) {
         code,
         input,
         output,
+        user_id: user.id, // Explicitly set user_id, though default auth.uid() handles it if strict RLS is on.
         updated_at: new Date().toISOString()
     };
+
+    // ... rest of save logic needs no changes? 
+    // Wait, insert/update logic needs to respect user permissions.
+    // If the RLS is set up correctly, it will just work.
 
     let error;
     let data;
@@ -244,6 +431,7 @@ async function saveCode(titleText) {
         data = result.data;
     }
 
+    // ... rest is same
     confirmSaveBtn.innerText = originalText;
     confirmSaveBtn.disabled = false;
 
@@ -333,8 +521,7 @@ startAutoSave();
 // UI EVENTS
 // ==========================================
 
-const newCodeBtn = document.getElementById('new-code-btn');
-
+// Event Listeners related to newCodeBtn are fine, but remove the const declaration
 function createNewCode() {
     // Confirm if there are unsaved changes? (Skipping for simplicity as per requirements)
 
@@ -524,5 +711,6 @@ function switchTab(tabName) {
     }
 }
 
-// Load codes on start
-loadSavedCodes();
+// Load codes on start if session exists
+initAuth();
+// loadSavedCodes call is now inside initAuth() listener

@@ -14,6 +14,28 @@
     --glass-border: rgba(255, 255, 255, 0.05);
 }
 
+[data-theme="light"] {
+    /* Soft "Technical" Light Theme (Slate/Blue-ish Grey) */
+    --bg-color: #f1f5f9;
+    /* Slate-100 */
+    --surface-color: #ffffff;
+    --surface-hover: #e2e8f0;
+    /* Slate-200 */
+    --surface-border: #cbd5e1;
+    /* Slate-300 */
+    --text-primary: #1e293b;
+    /* Slate-800 */
+    --text-secondary: #64748b;
+    /* Slate-500 */
+
+    /* Slight tint for glass elements */
+    --glass-bg: rgba(255, 255, 255, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.4);
+
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -24,9 +46,10 @@ body {
     font-family: var(--font-ui);
     background-color: var(--bg-color);
     background-image:
-        radial-gradient(circle at 10% 20%, rgba(100, 108, 255, 0.08) 0%, transparent 20%),
-        radial-gradient(circle at 90% 80%, rgba(144, 137, 252, 0.08) 0%, transparent 20%);
+        radial-gradient(circle at 10% 20%, rgba(100, 108, 255, 0.04) 0%, transparent 20%),
+        radial-gradient(circle at 90% 80%, rgba(144, 137, 252, 0.04) 0%, transparent 20%);
     color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
     height: 100vh;
     overflow: hidden;
     line-height: 1.5;
@@ -372,7 +395,7 @@ body {
     text-transform: uppercase;
     position: relative;
     /* We remove the direct color here as spans will handle it, but set a fallback */
-    color: #4a4a5e;
+    color: var(--text-primary);
     display: flex;
     gap: 0.1em;
     user-select: none;
@@ -446,7 +469,8 @@ body {
     font-family: var(--font-ui);
     font-weight: 400;
     font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.15);
+    font-size: 0.7rem;
+    color: var(--text-secondary);
     /* Even more subtle */
     text-transform: none;
     letter-spacing: 0.05em;
@@ -597,7 +621,8 @@ button {
 /* IO Split -> Terminal Tabs */
 .terminal-container {
     flex: 4;
-    background: #131319;
+    background: var(--surface-color);
+    /* Was hardcoded #131319 */
     border-radius: 16px;
     border: 1px solid var(--surface-border);
     display: flex;
@@ -609,7 +634,8 @@ button {
 
 .terminal-tabs {
     display: flex;
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(127, 127, 127, 0.05);
+    /* Neutral tint */
     border-bottom: 1px solid var(--surface-border);
     padding: 0 0.5rem;
     align-items: center;
@@ -676,12 +702,81 @@ button {
 }
 
 #output-panel {
-    background: #131319;
+    background: var(--surface-color);
 }
 
 #input-panel {
-    background: #1a1a20;
-    /* Slightly lighter to distinguish input mode */
+    background: var(--surface-color);
+}
+
+/* Light theme specific overrides for scrollbars */
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* Auth Modal Styles */
+.auth-mode-switch {
+    margin-top: 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.auth-mode-switch a {
+    color: #646cff;
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.auth-mode-switch a:hover {
+    text-decoration: underline;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding-left: 1rem;
+    border-left: 1px solid var(--surface-border);
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    background: var(--primary-gradient);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    font-size: 0.9rem;
+}
+
+.logout-btn {
+    color: #ff8080;
+    font-size: 0.85rem;
+    background: transparent;
+    padding: 0.4rem 0.8rem;
+    border: 1px solid rgba(255, 128, 128, 0.2);
+}
+
+.logout-btn:hover {
+    background: rgba(255, 128, 128, 0.1);
+}
+
+/* Sidebar Light Mode Fixes */
+[data-theme="light"] .sidebar {
+    background: rgba(255, 255, 255, 0.95);
+}
+
+[data-theme="light"] .saved-item:hover {
+    background: #e2e8f0;
 }
 
 .editor-container {
@@ -705,9 +800,12 @@ button {
 }
 
 .cm-gutters {
-    background-color: #1a1a20 !important;
+    background-color: #1a1a20;
+    /* Default Dark */
     border-right: 1px solid var(--surface-border) !important;
 }
+
+/* Explicitly override for light mode in the chunk below or here if simpler */
 
 .output-container {
     flex: 1;
@@ -724,7 +822,9 @@ button {
     align-items: center;
     padding: 0.8rem 1.2rem;
     border-bottom: 1px solid var(--surface-border);
-    background-color: rgba(255, 255, 255, 0.03);
+    padding: 0.8rem 1.2rem;
+    border-bottom: 1px solid var(--surface-border);
+    background-color: var(--bg-color);
     font-size: 0.85rem;
     font-weight: 600;
     text-transform: uppercase;
