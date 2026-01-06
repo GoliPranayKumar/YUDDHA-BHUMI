@@ -25,6 +25,8 @@
     "@codemirror/state": "^6.4.0",
     "@codemirror/theme-one-dark": "^6.1.2",
     "@codemirror/view": "^6.23.0",
-    "codemirror": "^6.0.1"
+    "@supabase/supabase-js": "^2.89.0",
+    "codemirror": "^6.0.1",
+    "dotenv": "^17.2.3"
   }
 }
