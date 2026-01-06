@@ -53,9 +53,29 @@ const confirmAuthBtn = document.getElementById('confirm-auth-btn');
 const authSwitchLink = document.getElementById('auth-switch-link');
 const authTitle = document.getElementById('auth-title');
 const authSwitchText = document.getElementById('auth-switch-text');
+const togglePasswordBtn = document.getElementById('toggle-password');
 
 let isSignUpMode = false;
 let user = null;
+
+// Password Toggle Logic
+togglePasswordBtn.addEventListener('click', () => {
+    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+    passwordInput.setAttribute('type', type);
+
+    // Toggle Icons
+    const openEye = togglePasswordBtn.querySelector('.eye-open');
+    const closedEye = togglePasswordBtn.querySelector('.eye-closed');
+
+    if (type === 'text') {
+        openEye.style.display = 'none';
+        closedEye.style.display = 'block';
+    } else {
+        openEye.style.display = 'block';
+        closedEye.style.display = 'none';
+    }
+});
+
 
 // Modal Elements
 const saveModal = document.getElementById('save-modal');
