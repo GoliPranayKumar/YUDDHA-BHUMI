@@ -660,9 +660,10 @@ button {
 }
 
 .tab-btn.active {
-    color: #8aff9d;
+    color: #646cff;
+    /* Primary Blue */
     /* Match success color or primary */
-    border-bottom-color: #8aff9d;
+    border-bottom-color: #646cff;
 }
 
 .terminal-body {
@@ -852,7 +853,8 @@ button {
 }
 
 .output-success {
-    color: #8aff9d;
+    color: #4cc9f0;
+    /* Brighter Blue */
 }
 
 /* Responsive Sidebar */
