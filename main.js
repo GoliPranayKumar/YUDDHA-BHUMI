@@ -944,12 +944,12 @@ async function runCode() {
     outputElement.textContent = 'Executing...';
     outputElement.className = 'io-content';
 
-    // Map to Wandbox compiler names (using -head for latest versions)
+    // Map to Wandbox compiler names (Stable versioned strings)
     const wandboxConfig = {
-        javascript: 'nodejs-head',
-        python: 'cpython-head',
-        cpp: 'gcc-head',
-        java: 'openjdk-head'
+        javascript: 'nodejs-18.15.0',
+        python: 'cpython-3.10.10',
+        cpp: 'gcc-13.2.0',
+        java: 'openjdk-15.0.2'
     };
 
     const compiler = wandboxConfig[lang];
