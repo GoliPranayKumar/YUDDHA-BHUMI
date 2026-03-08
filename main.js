@@ -19,10 +19,19 @@ const themeCompartment = new Compartment();
 // IMPORTANT: Ensure you have created a table named 'codes' with columns:
 // id (uuid), title (text), language (text), code (text), input (text), output (text), created_at (timestamp)
 // AND Disable RLS (Row Level Security) for this table to allow anonymous reads/writes.
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_KEY;
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || '';
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_KEY || '';
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+let supabase;
+if (SUPABASE_URL && SUPABASE_KEY) {
+    try {
+        supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    } catch (e) {
+        console.error("Failed to initialize Supabase client:", e);
+    }
+} else {
+    console.warn("Supabase credentials missing. App may not function correctly. Please check your .env or Vercel Environment Variables.");
+}
 
 const langCompartment = new Compartment();
 const languageSelect = document.getElementById('language-select');
