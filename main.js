@@ -258,6 +258,8 @@ if (localStorage.getItem('theme') === 'light') {
 // ==========================================
 
 async function initAuth() {
+    if (!supabase) return;
+
     const { data } = await supabase.auth.getSession();
     user = data.session?.user;
     updateAuthUI();
@@ -317,7 +319,7 @@ loginBtn.addEventListener('click', () => {
 });
 
 logoutBtn.addEventListener('click', async () => {
-    await supabase.auth.signOut();
+    if (supabase) await supabase.auth.signOut();
 });
 
 cancelAuthBtn.addEventListener('click', () => {
@@ -553,6 +555,7 @@ function updateAuthModal() {
 // ==========================================
 
 async function loadSavedCodes() {
+    if (!supabase) return;
     savedList.innerHTML = '<li class="empty-state">Loading...</li>';
 
     // Only load if logged in? Or allow public?
@@ -641,6 +644,7 @@ async function loadSavedCodes() {
 }
 
 async function deleteCode(id) {
+    if (!supabase) return;
     const { error } = await supabase
         .from('codes')
         .delete()
@@ -697,6 +701,7 @@ async function saveCode(titleText) {
 
     if (currentCodeId) {
         // Update existing
+        if (!supabase) return;
         const result = await supabase
             .from('codes')
             .update(payload)
@@ -706,6 +711,7 @@ async function saveCode(titleText) {
         data = result.data;
     } else {
         // Insert new
+        if (!supabase) return;
         const result = await supabase
             .from('codes')
             .insert([payload])
@@ -732,6 +738,7 @@ async function saveCode(titleText) {
 }
 
 async function openCode(id) {
+    if (!supabase) return;
     const { data, error } = await supabase
         .from('codes')
         .select('*')
@@ -786,17 +793,19 @@ function startAutoSave() {
             const output = outputElement.textContent;
 
             // Minimal update
-            await supabase
-                .from('codes')
-                .update({
-                    code,
-                    input,
-                    output,
-                    updated_at: new Date().toISOString()
-                })
-                .eq('id', currentCodeId);
+            if (supabase) {
+                await supabase
+                    .from('codes')
+                    .update({
+                        code,
+                        input,
+                        output,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', currentCodeId);
 
-            console.log('Auto-saved');
+                console.log('Auto-saved');
+            }
         }
     }, AUTO_SAVE_INTERVAL);
 }
@@ -1183,6 +1192,7 @@ let codeRevealTimeout = null;
 
 // Forgot Password
 forgotPasswordLink.addEventListener('click', async () => {
+    if (!supabase) return;
     const email = emailInput.value;
     if (!email) {
         showToast("Please enter your email address in the login form first.", "error");
@@ -1220,6 +1230,7 @@ userProfile.addEventListener('click', async (e) => {
         actualSecretCode = null;
 
         // Fetch the user's secret code from user_codes table
+        if (!supabase) return;
         const { data: codeData } = await supabase
             .from('user_codes')
             .select('login_code')
@@ -1267,6 +1278,7 @@ revealCodeBtn.addEventListener('click', async () => {
     }
 
     // Verify password by attempting to re-authenticate
+    if (!supabase) return;
     const { error } = await supabase.auth.signInWithPassword({
         email: user.email,
         password: password
@@ -1304,6 +1316,7 @@ copyCodeBtn.addEventListener('click', async () => {
         }
 
         // Verify password
+        if (!supabase) return;
         const { error } = await supabase.auth.signInWithPassword({
             email: user.email,
             password: password
@@ -1367,6 +1380,7 @@ changePasswordBtn.addEventListener('click', async () => {
     changePasswordBtn.innerText = "Updating...";
     changePasswordBtn.disabled = true;
 
+    if (!supabase) return;
     const { error } = await supabase.auth.updateUser({ password: newPassword });
 
     if (error) {
@@ -1395,6 +1409,7 @@ deleteAccountBtn.addEventListener('click', async () => {
         deleteAccountBtn.disabled = true;
 
         // 1. Delete all codes
+        if (!supabase) return;
         const { error: deleteError } = await supabase
             .from('codes')
             .delete()
