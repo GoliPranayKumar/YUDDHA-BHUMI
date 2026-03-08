@@ -932,54 +932,67 @@ saveModal.addEventListener('click', (e) => {
 
 
 
-// Piston API Run
+// Wandbox API Run
 async function runCode() {
     const lang = languageSelect.value;
     const code = view.state.doc.toString();
-    const inputVal = inputElement.value; // Get input from new panel
+    const inputVal = inputElement.value;
 
     runBtn.disabled = true;
     const originalBtnContent = runBtn.innerHTML;
     runBtn.innerHTML = '<span class="spinner"></span> Running...';
     outputElement.textContent = 'Executing...';
-    outputElement.className = 'io-content'; // Reset class
+    outputElement.className = 'io-content';
 
-    // Map to Piston language names/versions
-    const pistonConfig = {
-        javascript: { language: 'javascript', version: '18.15.0' },
-        python: { language: 'python', version: '3.10.0' },
-        cpp: { language: 'c++', version: '10.2.0' },
-        java: { language: 'java', version: '15.0.2' }
+    // Map to Wandbox compiler names (using -head for latest versions)
+    const wandboxConfig = {
+        javascript: 'nodejs-head',
+        python: 'cpython-head',
+        cpp: 'gcc-head',
+        java: 'openjdk-head'
     };
 
-    const config = pistonConfig[lang];
+    const compiler = wandboxConfig[lang];
 
     try {
-        const response = await fetch('https://emkc.org/api/v2/piston/execute', {
+        const response = await fetch('https://wandbox.org/api/compile.json', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                language: config.language,
-                version: config.version,
-                files: [
-                    {
-                        content: code
-                    }
-                ],
-                stdin: inputVal // Pass stdin to Piston
+                compiler: compiler,
+                code: code,
+                stdin: inputVal,
+                save: true
             })
         });
 
         const data = await response.json();
 
-        if (data.run) {
-            outputElement.textContent = data.run.output || 'No output';
-            // Piston combines stdout and stderr in .output usually, but we can check stderr
-            if (data.run.stderr) {
-                // optionally color it red?
+        // Handle Compiler/Program Output
+        if (data.program_message || data.compiler_message) {
+            let fullOutput = '';
+
+            // Show compiler errors/warnings if any
+            if (data.compiler_message) {
+                fullOutput += data.compiler_message + "\n---\n";
             }
+
+            // Show program output (standard + error merged)
+            fullOutput += data.program_message || (data.status === "0" ? "Program executed with no output." : "Program failed.");
+
+            outputElement.textContent = fullOutput;
+
+            // If status is not 0, it's an execution error
+            if (data.status !== "0") {
+                outputElement.className = 'io-content output-error';
+            } else {
+                outputElement.className = 'io-content output-success';
+            }
+        } else if (data.status) {
+            outputElement.textContent = data.status === "0" ? "Success (No output)" : "Execution Error (Status: " + data.status + ")";
+            if (data.status !== "0") outputElement.className = 'io-content output-error';
         } else {
             outputElement.textContent = 'Error: ' + JSON.stringify(data);
             outputElement.className = 'io-content output-error';
