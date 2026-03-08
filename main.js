@@ -944,12 +944,12 @@ async function runCode() {
     outputElement.textContent = 'Executing...';
     outputElement.className = 'io-content';
 
-    // Map to Wandbox compiler names (Stable versioned strings)
+    // Map to Wandbox compiler names (Guaranteed to exist as of 2026)
     const wandboxConfig = {
-        javascript: 'nodejs-18.15.0',
-        python: 'cpython-3.10.10',
+        javascript: 'nodejs-20.17.0',
+        python: 'cpython-3.13.8',
         cpp: 'gcc-13.2.0',
-        java: 'openjdk-15.0.2'
+        java: 'openjdk-jdk-21+35'
     };
 
     const compiler = wandboxConfig[lang];
@@ -968,7 +968,16 @@ async function runCode() {
             })
         });
 
-        const data = await response.json();
+        const text = await response.text();
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+            console.error("Wandbox API returned non-JSON response:", text);
+            outputElement.textContent = 'API Error: ' + text;
+            outputElement.className = 'io-content output-error';
+            return;
+        }
 
         // Handle Compiler/Program Output
         if (data.program_message || data.compiler_message) {
@@ -990,7 +999,7 @@ async function runCode() {
             } else {
                 outputElement.className = 'io-content output-success';
             }
-        } else if (data.status) {
+        } else if (data.status !== undefined) {
             outputElement.textContent = data.status === "0" ? "Success (No output)" : "Execution Error (Status: " + data.status + ")";
             if (data.status !== "0") outputElement.className = 'io-content output-error';
         } else {
